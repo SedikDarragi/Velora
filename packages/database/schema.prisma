@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  PROFESSIONAL
+  ADMIN
+}
+
+enum Condition {
+  NEW
+  USED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String
+  role          Role      @default(USER)
+  avatarUrl     String?
+  verified      Boolean   @default(false)
+  listings      Listing[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Listing {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  price       Float
+  condition   Condition
+  brand       String?
+  category    String    // e.g., Road, MTB, Parts
+  images      String[]  // Array of Cloudinary URLs
+  location    String?
+  isSold      Boolean   @default(false)
+  
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
